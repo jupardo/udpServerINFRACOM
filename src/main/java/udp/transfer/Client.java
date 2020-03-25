@@ -6,6 +6,7 @@ import java.net.InetAddress;
 public class Client {
 	private int bytesRead;
 	private int bytesWritten;
+	private long elapsed;
 	final public InetAddress address;
 	final public int port;
 	
@@ -13,6 +14,8 @@ public class Client {
 		this.address = address;
 		this.port = port;
 		bytesRead = 0;
+		elapsed = 0;
+		bytesWritten = 0;
 	}
 	
 	public void increaseBytesRead(int length) {
@@ -37,6 +40,10 @@ public class Client {
 	public int getBytesWritten() {
 		return bytesWritten;
 	}
+	
+	public long getElapsed() {
+		return elapsed;
+	}
 
 	public void setBytesWritten(int bytesWritten) {
 		this.bytesWritten = bytesWritten;
@@ -45,12 +52,17 @@ public class Client {
 	public void increaseBytesWritten(int bytes) {
 		this.bytesWritten+= bytes;
 	}
+	
+	public void setElapsed(long elapsed) {
+		this.elapsed = elapsed;
+	}
 
 	@Override
 	public String toString() {
 		// TODO Auto-generated method stub
 		return "Address" + address.getHostAddress() +
-				"BytesRead: " + bytesRead +
-				"BytesWritten: " + bytesWritten;
+				"BytesRead: " + bytesRead + ", " +
+				"BytesWritten: " + bytesWritten + ", " +
+				"Transfer time: " + elapsed + "ms";
 	}
 }

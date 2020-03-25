@@ -57,6 +57,7 @@ public class Transfer {
 		        		socket.send(toSend);
 		        	}
 		        	int packageLength;
+		        	long startTime = System.currentTimeMillis();
 		        	while((packageLength = fis.read(buffer)) != -1) {
 		        		for(int i = 0; i < clientes.length && clientes[i] != null; i++) {
 		        			Client cliente = clientes[i];
@@ -66,6 +67,7 @@ public class Transfer {
 		        	}
 		        	for(int i = 0; i < clientes.length && clientes[i] != null; i++) {
 	        			Client cliente = clientes[i];
+	        			cliente.setElapsed(System.currentTimeMillis() - startTime);
 	        			byte[] EOF = {-1}; 
 		        		DatagramPacket toSend = cliente.buildUserMessage(EOF, EOF.length);
 		        		socket.send(toSend);
