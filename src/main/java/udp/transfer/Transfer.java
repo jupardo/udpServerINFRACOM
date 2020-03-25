@@ -2,7 +2,9 @@ package udp.transfer;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
@@ -17,6 +19,8 @@ public class Transfer {
 	private static final int PORT = 3312;
 	
 	private static final int bufferSize = 512;
+	
+	private static final String LOG_FILE = "/log/transferUDP.txt";
 	
 	public static void main(String[] args) {
 		try {
@@ -66,9 +70,15 @@ public class Transfer {
 		        		DatagramPacket toSend = cliente.buildUserMessage(EOF, EOF.length);
 		        		socket.send(toSend);
 		        	}
+		        	FileWriter fw = new FileWriter(LOG_FILE);
+		        	PrintWriter pw = new PrintWriter(fw);
+		        	pw.println(new Date().toString() + ": Data's been sent\n"
+		        			+ "Receivers: " + Arrays.toString(clientes) + "\n"
+		        			+ "File sent: " + file);
 		        	System.out.println( new Date().toString() + ": Data's been sent\n"
 		        			+ "Receivers: " + Arrays.toString(clientes) + "\n"
 		        			+ "File sent: " + file);
+		        	fw.close();
 		        	fis.close();
 		        }
 	        	//in.close();
