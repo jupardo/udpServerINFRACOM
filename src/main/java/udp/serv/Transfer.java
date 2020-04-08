@@ -1,13 +1,18 @@
 package udp.serv;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -15,8 +20,11 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.google.common.hash.HashCode;
+import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
 import com.google.common.io.Files;
+
+import udp.serv.DockerUtilities.PairPortContainer;
 
 public class Transfer {
 	private static final int PORT = 3313;
@@ -50,7 +58,7 @@ public class Transfer {
 		        	clientes.add(new Client(peticion.getAddress(), peticion.getPort()));
 		        }
 		        Optional<Client> temp = clientes.stream().filter(c -> c.equals(peticion)).findFirst();
-		        Client cliente = null;
+		        final Client cliente;
 		        if(temp.isPresent()) {
 		        	cliente = temp.get();
 		        } else {
@@ -73,7 +81,46 @@ public class Transfer {
 		        }
 		        else {
 		        	if(cliente.isSendingFile()) {
-		        		
+		        		byte[] EOF = {-1};
+		        		if(peticion.getData() == EOF) {
+		        			cliente.setSendingFile(false);
+		        			new Thread(() -> {
+			        			try {
+			        				FileInputStream fis = new FileInputStream(cliente.getTemporalFileName());
+			        				byte[] buffer2 = new byte[512];
+			        				int length;
+			        				Hasher sha256 = Hashing.sha256().newHasher();
+			        				while((length = fis.read(buffer2)) != -1) {
+			        					sha256.putBytes(buffer, 0, length);
+			        					DatagramPacket msg = cliente.buildUserMessage(buffer2, length);
+			        					socket.send(msg);
+			        				}
+			        				DatagramPacket msg = cliente.buildUserMessage(EOF, EOF.length);
+		        					socket.send(msg);
+			        				String hashSum = sha256.hash().toString(); 
+			        				if(hashSum.equals(cliente.getTemporalHash())) {
+			        					PairPortContainer cont = dockerUtilities.buildUdpTransmitter(cliente.getTemporalFileName());
+			        					orchestator.addContainer(cont.port, cont.imageId);
+			        					String message = "File is being transmitted on: " + cont.port;
+			        					msg = cliente.buildUserMessage(message.getBytes(), message.length());
+			        					
+			        				} else {
+			        					System.err.println("Client and server hash does not match");
+			        				}
+			        				cliente.resetTemporalHash();
+			        				cliente.setTemporalFileName("");
+			        				//String hex = new BigInteger(digest() 
+			        			} catch (Exception e) {
+			        				System.err.println("Oops! File colud not be processed");
+			        			}
+		        			}).start();
+		        		} else {
+		        			File file = new File("data/" + cliente.getTemporalFileName());
+		        			file.createNewFile();
+		        			FileOutputStream fos = new FileOutputStream("data/" + cliente.getTemporalFileName(), true);
+		        			fos.write(peticion.getData());
+		        			fos.close();
+		        		}
 		        	} else {
 		        		if(cadena.startsWith(Messages.ListContainers.getMessage())) {
 		        			String message = "";
