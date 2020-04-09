@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -31,6 +30,7 @@ public class PortAssigner {
 		try {
 			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
 			map = (Map<String, Integer>) ois.readObject();
+			ois.close();
 		} catch(FileNotFoundException fnf) {
 			File add = new File(file);
 			try {

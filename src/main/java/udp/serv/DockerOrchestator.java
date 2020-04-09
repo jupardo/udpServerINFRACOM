@@ -20,12 +20,14 @@ public class DockerOrchestator {
 	
 	private Thread updateContainerStatus;
 	
+	@SuppressWarnings("unchecked")
 	public DockerOrchestator(DockerUtilities dockerUtilities) {
 		// TODO Auto-generated constructor stub
 		this.dockerUtilities = dockerUtilities;
 		try {
 			ObjectInputStream ois = new ObjectInputStream(new FileInputStream(DATA));
 			containers = (Map<Integer, String>) ois.readObject();
+			ois.close();
 		} catch (IOException | ClassNotFoundException e) {
 			containers = new HashMap<>();
 			persistData();	

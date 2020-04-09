@@ -20,7 +20,7 @@ public class Transfer {
 	
 	private static final int bufferSize = 512;
 	
-	private static final String LOG_FILE = "/log/transferUDP.txt";
+	private static final String LOG_FILE = "/var/logs/transferUDP.txt";
 	
 	public static void main(String[] args) {
 		try {
@@ -72,6 +72,8 @@ public class Transfer {
 		        		DatagramPacket toSend = cliente.buildUserMessage(EOF, EOF.length);
 		        		socket.send(toSend);
 		        	}
+		        	File f = new File(LOG_FILE);
+		        	f.createNewFile();
 		        	FileWriter fw = new FileWriter(LOG_FILE);
 		        	PrintWriter pw = new PrintWriter(fw);
 		        	pw.println(new Date().toString() + ": Data's been sent\n"

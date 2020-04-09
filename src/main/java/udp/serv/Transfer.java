@@ -1,28 +1,17 @@
 package udp.serv;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.math.BigInteger;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
 import java.util.Optional;
 
-import com.google.common.hash.HashCode;
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
-import com.google.common.io.Files;
 
 import udp.serv.DockerUtilities.PairPortContainer;
 
@@ -31,17 +20,17 @@ public class Transfer {
 	
 	private static final int bufferSize = 512;
 	
-	private static final String LOG_FILE = "/log/streamingUDP.txt";
+	//private static final String LOG_FILE = "/log/streamingUDP.txt";
 	
 	private static DatagramSocket socket;
 	
+	@SuppressWarnings("unlikely-arg-type")
 	public static void main(String[] args) {
 		//Inicializamos las utilidades
 		PortAssigner portAssigner = PortAssigner.portAssign;
 		DockerUtilities dockerUtilities = DockerUtilities.self;
 		DockerOrchestator orchestator = new DockerOrchestator(dockerUtilities);
 		try {
-			int currUsers = 0;
 			ArrayList<Client> clientes = new ArrayList<>();
 			socket = new DatagramSocket(PORT);
 			byte[] buffer = new byte[bufferSize];
@@ -103,7 +92,7 @@ public class Transfer {
 			        					orchestator.addContainer(cont.port, cont.imageId);
 			        					String message = "File is being transmitted on: " + cont.port;
 			        					msg = cliente.buildUserMessage(message.getBytes(), message.length());
-			        					
+			        					socket.send(msg);
 			        				} else {
 			        					System.err.println("Client and server hash does not match");
 			        				}
